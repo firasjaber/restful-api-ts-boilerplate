@@ -5,6 +5,7 @@ import logging from './config/logging';
 import config from './config/config';
 import sampleRoute from './routes/sample';
 import itemRoute from './routes/item.routes';
+import userRoute from './routes/user.routes';
 import mongoose from 'mongoose';
 import connectDB from './utils/db';
 
@@ -44,7 +45,8 @@ router.use((req,res,next) => {
 
 /** Routing */
 router.use('/api/v1/sample',sampleRoute);
-router.use('/api/v1/item',itemRoute);
+router.use('/api/v1/items',itemRoute);
+router.use('/api/v1/users',userRoute)
 
 /** Error Handling */
 router.use((req,res,next) => {

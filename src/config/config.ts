@@ -29,9 +29,18 @@ const MONGO = {
 const SERVER_HOSTNAME = process.env.SERVER_HOSTNAME || 'localhost';
 const SERVER_PORT = process.env.SERVER_PORT || '3001';
 
+const SERVER_TOKEN_EXPRIRETIME = process.env.SERVER_TOKEN_EXPRIRETIME || 3600;
+const SERVER_TOKEN_ISSUER = process.env.SERVER_TOKEN_ISSUER || 'firasjaberc@gmail.com';
+const SERVER_TOKEN_SECRET = process.env.SERVER_TOKEN_SECRET || 'supersecret';
+
 const SERVER = {
     hostname: SERVER_HOSTNAME,
-    port: SERVER_PORT
+    port: SERVER_PORT,
+    token: {
+        expireTime: SERVER_TOKEN_EXPRIRETIME,
+        issuer: SERVER_TOKEN_ISSUER,
+        secret: SERVER_TOKEN_SECRET
+    }
 }
 
 const config = {
