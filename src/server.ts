@@ -4,9 +4,15 @@ import bodyParser from 'body-parser';
 import logging from './config/logging';
 import config from './config/config';
 import sampleRoute from './routes/sample';
+import itemRoute from './routes/item.routes';
+import mongoose from 'mongoose';
+import connectDB from './utils/db';
 
 const NAMESPACE = 'Server';
 const router = express();
+
+/** Connecting to MongoDB Database */
+connectDB();
 
 /** Logging the request */
 router.use((req,res,next) => {
@@ -38,6 +44,7 @@ router.use((req,res,next) => {
 
 /** Routing */
 router.use('/api/v1/sample',sampleRoute);
+router.use('/api/v1/item',itemRoute);
 
 /** Error Handling */
 router.use((req,res,next) => {
