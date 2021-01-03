@@ -4,23 +4,8 @@ import mongoose from 'mongoose';
 import bcryptjs from 'bcryptjs';
 import User from '../models/User';
 import signJWT from '../utils/signJWT';
-import IUser from '../interfaces/user';
 
 const NAMESPACE = 'User Controllers';
-
-export const getUser = (req: Request, res: Response, next: NextFunction) => {
-    logging.info(NAMESPACE, 'get user route called.');
-
-    const user = {
-        name: 'user 1',
-        price: 10,
-    };
-
-    return res.status(200).json({
-        data: user,
-        success: true,
-    });
-};
 
 export const getLoggenInUser = async (
     req: Request,
@@ -29,44 +14,67 @@ export const getLoggenInUser = async (
 ) => {
     logging.info(NAMESPACE, 'validate token route called.');
     const { _id } = res.locals.user;
-    const user = await User.findOne({ _id });
-    return res.status(200).json({
-        user,
-    });
+    try {
+        const user = await User.findOne({ _id });
+        if (!user) {
+            throw new Error('Authentication failed');
+        }
+        return res.status(200).json({
+            user,
+        });
+    } catch (error) {
+        logging.error(NAMESPACE, error.message, error);
+        return res.status(500).json({
+            message: error.message,
+            error,
+        });
+    }
 };
 
-export const register = (req: Request, res: Response, next: NextFunction) => {
+export const register = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
     logging.info(NAMESPACE, 'register route called.');
     let { username, password } = req.body;
-
-    bcryptjs.hash(password, 10, async (hashError, hash) => {
-        if (hashError) {
-            return res.status(500).json({
-                message: hashError.message,
-                error: hashError,
+    try {
+        const user = await User.findOne({ username });
+        if (user) {
+            return res.status(401).json({
+                message: 'User already exits.',
+                success: false,
             });
         }
 
-        const _user = new User({
-            _id: new mongoose.Types.ObjectId(),
-            username,
-            password: hash,
-        });
-        try {
+        bcryptjs.hash(password, 10, async (hashError, hash) => {
+            if (hashError) {
+                return res.status(500).json({
+                    message: hashError.message,
+                    error: hashError,
+                });
+            }
+
+            const _user = new User({
+                _id: new mongoose.Types.ObjectId(),
+                username,
+                password: hash,
+            });
+
             await _user.save();
             return res.status(201).json({
                 message: 'User Created',
                 user: _user,
                 success: true,
             });
-        } catch (error) {
-            logging.error(NAMESPACE, error.message, error);
-            return res.status(500).json({
-                message: error.message,
-                error,
-            });
-        }
-    });
+        });
+    } catch (error) {
+        logging.error(NAMESPACE, error.message, error);
+        return res.status(500).json({
+            message: error.message,
+            error,
+        });
+    }
 };
 
 export const login = async (

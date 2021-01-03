@@ -1,19 +1,31 @@
 import express from 'express';
+import auth from '../middleware/auth';
+import {
+    createValidationFor,
+    checkValidationResult,
+} from '../utils/validation';
 import {
     getAllUsers,
-    getUser,
     login,
     register,
     getLoggenInUser,
 } from '../controllers/user.controllers';
-import auth from '../middleware/auth';
 
 const router = express.Router();
 
-router.get('/get', getUser);
 router.get('/get/all', getAllUsers);
 router.get('/loggedin', auth, getLoggenInUser);
-router.post('/register', register);
-router.post('/login', login);
+router.post(
+    '/register',
+    createValidationFor('register'),
+    checkValidationResult,
+    register
+);
+router.post(
+    '/login',
+    createValidationFor('login'),
+    checkValidationResult,
+    login
+);
 
 export = router;
