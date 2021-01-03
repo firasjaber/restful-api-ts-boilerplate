@@ -5,17 +5,24 @@ import logging from './config/logging';
 import config from './config/config';
 import itemRoute from './routes/item.routes';
 import userRoute from './routes/user.routes';
-import mongoose from 'mongoose';
 import connectDB from './utils/db';
+import monitor from 'express-status-monitor';
+import helmet from 'helmet';
 
 const NAMESPACE = 'Server';
-const router = express();
+const app = express();
 
 /** Connecting to MongoDB Database */
 connectDB();
 
+/** Simple Monitoring */
+app.use(monitor());
+
+/** Security Headers */
+app.use(helmet());
+
 /** Logging the request */
-router.use((req, res, next) => {
+app.use((req, res, next) => {
     logging.info(
         NAMESPACE,
         `REQUEST : METHOD - [${req.method}], URL - [${req.url}], IP - [${req.socket.remoteAddress}]`
@@ -32,11 +39,11 @@ router.use((req, res, next) => {
 });
 
 /** Parsing the request */
-router.use(bodyParser.urlencoded({ extended: false }));
-router.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 /** Rules of the API */
-router.use((req, res, next) => {
+app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
     res.header(
         'Access-Control-Allow-Headers',
@@ -52,11 +59,11 @@ router.use((req, res, next) => {
 });
 
 /** Routing */
-router.use('/api/v1/items', itemRoute);
-router.use('/api/v1/users', userRoute);
+app.use('/api/v1/items', itemRoute);
+app.use('/api/v1/users', userRoute);
 
 /** Error Handling */
-router.use((req, res, next) => {
+app.use((req, res, next) => {
     const error = new Error('Route Not found');
 
     return res.status(400).json({
@@ -65,7 +72,7 @@ router.use((req, res, next) => {
 });
 
 /** Creating the server */
-const httpServer = http.createServer(router);
+const httpServer = http.createServer(app);
 httpServer.listen(config.server.port, () =>
     logging.info(
         NAMESPACE,
