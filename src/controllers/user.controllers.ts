@@ -23,6 +23,7 @@ export const getUser = (req: Request, res:Response, next:NextFunction) => {
 
 export const validateToken = (req: Request, res:Response, next:NextFunction) => {
     logging.info(NAMESPACE, 'validate token route called.');
+    console.log(res.locals.user);
     return res.status(200).json({
         message: "Authorized",
         success: true

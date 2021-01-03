@@ -14,7 +14,7 @@ const signJWT = (user: IUser, callback: (error: Error | null, token: string | nu
 
     try {
 
-        jwt.sign({username: user.username} , config.server.token.secret, {
+        jwt.sign({_id: user._id} , config.server.token.secret, {
             issuer : config.server.token.issuer,
             algorithm: 'HS256',
             expiresIn: expirationTimeInSecons

@@ -12,17 +12,16 @@ const extractJWT = (req: Request, res: Response, next:NextFunction) => {
         jwt.verify(token, config.server.token.secret, (error, decoded) => {
             if (error) {
                 return res.status(404).json({
-                    message: error.message,
-                    error: error
+                    message: 'Token is not valid',
                 })
             } else {
-                res.locals.jwt = decoded;
+                res.locals.user = decoded;
                 next();
             }
         });
     } else {
         return res.status(401).json({
-            message: 'Unauthorized',
+            message: 'No Token, authorization denied',
             success: false
         });
     }
